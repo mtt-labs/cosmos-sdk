@@ -133,6 +133,11 @@ type MockBankKeeper struct {
 	recorder *MockBankKeeperMockRecorder
 }
 
+func (m *MockBankKeeper) GetBalance(ctx types.Context, addr types.AccAddress, denom string) types.Coin {
+	//TODO implement me
+	panic("implement me")
+}
+
 // MockBankKeeperMockRecorder is the mock recorder for MockBankKeeper.
 type MockBankKeeperMockRecorder struct {
 	mock *MockBankKeeper

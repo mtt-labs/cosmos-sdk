@@ -16,6 +16,7 @@ import (
 type Keeper struct {
 	cdc              codec.BinaryCodec
 	storeKey         storetypes.StoreKey
+	authKeeper       types.AccountKeeper
 	stakingKeeper    types.StakingKeeper
 	bankKeeper       types.BankKeeper
 	feeCollectorName string
@@ -43,6 +44,7 @@ func NewKeeper(
 	return Keeper{
 		cdc:              cdc,
 		storeKey:         key,
+		authKeeper:       ak,
 		stakingKeeper:    sk,
 		bankKeeper:       bk,
 		feeCollectorName: feeCollectorName,
@@ -58,25 +60,6 @@ func (k Keeper) GetAuthority() string {
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
-}
-
-// GetMinter returns the minter.
-func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.MinterKey)
-	if bz == nil {
-		panic("stored minter should not have been nil")
-	}
-
-	k.cdc.MustUnmarshal(bz, &minter)
-	return
-}
-
-// SetMinter sets the minter.
-func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&minter)
-	store.Set(types.MinterKey, bz)
 }
 
 // SetParams sets the x/mint module parameters.
@@ -108,6 +91,20 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 // StakingTokenSupply to be used in BeginBlocker.
 func (k Keeper) StakingTokenSupply(ctx sdk.Context) math.Int {
 	return k.stakingKeeper.StakingTokenSupply(ctx)
+}
+
+// GetBalance implements get staking module account balance
+// GetBalance to be used in BeginBlocker.
+func (k Keeper) GetBalance(ctx sdk.Context, denom string) sdk.Coin {
+	mint := k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+	return k.bankKeeper.GetBalance(ctx, mint.GetAddress(), denom)
+}
+
+// SetBeginBlock implements set mine begin height
+func (k Keeper) SetBeginBlock(ctx sdk.Context, height uint64) error {
+	params := k.GetParams(ctx)
+	params.BeginBlock = height
+	return k.SetParams(ctx, params)
 }
 
 // BondedRatio implements an alias call to the underlying staking keeper's
