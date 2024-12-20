@@ -44,6 +44,10 @@ func NewParams(unbondingTime time.Duration, maxValidators, maxEntries, historica
 		HistoricalEntries: historicalEntries,
 		BondDenom:         bondDenom,
 		MinCommissionRate: minCommissionRate,
+		GlobalMinSelfDelegation: sdk.Coin{
+			Denom:  bondDenom,
+			Amount: sdk.NewInt(10000).Mul(sdk.NewInt(100000000000000000)),
+		},
 	}
 }
 

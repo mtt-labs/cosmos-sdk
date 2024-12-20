@@ -14,7 +14,7 @@ const ValidatorUpdateDelay int64 = 1
 var (
 	// DefaultBondDenom is the default bondable coin denomination (defaults to stake)
 	// Overwriting this value has the side effect of changing the default denomination in genesis
-	DefaultBondDenom = "stake"
+	DefaultBondDenom = "amtt"
 
 	// DefaultPowerReduction is the default amount of staking tokens required for 1 unit of consensus-engine power
 	DefaultPowerReduction = NewIntFromUint64(1000000000000000000)

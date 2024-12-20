@@ -38,6 +38,10 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
+	if msg.MinSelfDelegation.LT(k.GlobalMinSelfDelegation(ctx).Amount) {
+		return nil, sdkerrors.Wrapf(types.ErrSelfDelegationBelowMinimum, "MinSelfDelegation less than params GlobalMinSelfDelegation")
+	}
+
 	if msg.Commission.Rate.LT(k.MinCommissionRate(ctx)) {
 		return nil, sdkerrors.Wrapf(types.ErrCommissionLTMinRate, "cannot set validator commission to less than minimum rate of %s", k.MinCommissionRate(ctx))
 	}
